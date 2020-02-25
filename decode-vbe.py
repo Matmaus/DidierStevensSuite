@@ -87,7 +87,7 @@ def File2StringHash(filename):
         finally:
             return decoded
     elif filename.startswith('#'):
-        return filename[1:]
+        return filename[1:].encode('utf-8')
     elif filename.lower().endswith('.zip'):
         oZipfile = zipfile.ZipFile(filename, 'r')
         if len(oZipfile.infolist()) == 1:
@@ -304,8 +304,8 @@ def Decode(data):
 
     result = ''
     index = -1
-    for char in data.replace('@&', chr(10)).replace('@#', chr(13)).replace('@*', '>').replace('@!', '<').replace('@$', '@'):
-        byte = ord(char)
+    for byte in data.replace(b'@&', b'\n').replace(b'@#', b'\r').replace(b'@*', b'>').replace(b'@!', b'<').replace(b'@$', b'@'):
+        char = chr(byte)
         if byte < 128:
             index = index + 1
         if (byte == 9 or byte > 31 and byte < 128) and byte != 60 and byte != 62 and byte != 64:
@@ -323,7 +323,7 @@ def DecodeVBE(filename, options):
         content = sys.stdin.read()
     else:
         content = File2StringHash(filename)
-    oMatch = re.search(r'#@~\^......==(.+)......==\^#~@', content)
+    oMatch = re.search(b'#@~\\^......==(.+)......==\\^#~@', content)
     if oMatch == None:
         print('No encoded script found!')
     else:
